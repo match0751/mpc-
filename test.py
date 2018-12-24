@@ -49,6 +49,12 @@ import matplotlib.pyplot as plt
     
 #    return J 
 
+def Merge(dict1, dict2): 
+    res = {**dict1, **dict2} 
+    return res 
+
+
+
 #------------定义目标代价函数------------
 def objective(x,*args):
     x=np.reshape(x,(prediction_horizon,state_number) )
@@ -239,7 +245,7 @@ def constraint3(x,*args):
 
 #------------初始化相关数值------------
 
-prediction_horizon = 10 #预测范围是10 
+prediction_horizon = 100 #预测范围是10 
 
 #state_number = 3 #状态量有两个
 
@@ -284,16 +290,23 @@ u = np.random.rand(prediction_horizon,input_number) #初始化实际状态量（
 
 #------------开始进行优化------------
 
+# 定义空的list 
+cons= []
+
+#print("cons")
+#print(cons)
+
 # 1.定义运动学约束
-con1 = {'type': 'eq', 'fun': constraint1,'args':(u[0,:],0)}
-con2 = {'type': 'eq', 'fun': constraint1,'args':(u[1,:],1)}
-con3 = {'type': 'eq', 'fun': constraint1,'args':(u[2,:],2)}
-con4 = {'type': 'eq', 'fun': constraint1,'args':(u[3,:],3)}
-con5 = {'type': 'eq', 'fun': constraint1,'args':(u[4,:],4)}
-con6 = {'type': 'eq', 'fun': constraint1,'args':(u[5,:],5)}
-con7 = {'type': 'eq', 'fun': constraint1,'args':(u[6,:],6)}
-con8 = {'type': 'eq', 'fun': constraint1,'args':(u[7,:],7)}
-con9 = {'type': 'eq', 'fun': constraint1,'args':(u[8,:],8)}
+for num in range(prediction_horizon-1):
+    print("num")
+    print(num)
+
+    con = {'type': 'eq', 'fun': constraint1,'args':(u[num,:],num)}
+    
+    cons.append (con)
+
+    #print("cons")
+    #print(cons)
 
 
 # 2.定义初始状态约束
@@ -301,11 +314,10 @@ con10 = {'type': 'eq', 'fun': constraint2,'args':(x_d,)}
 
 # 3.定义最终状态约束
 con11 = {'type': 'eq', 'fun': constraint3,'args':(x_d,)} 
+cons.append(con11)
 
 # 总约束
-cons = ([con1,con2,con3,con4,con5,con6,con7,con8,con9,con11])
-print("cons")
-print(cons.type)
+
 
 # 求解
 #solution = minimize(objective,x,args=(x_d,u,Q,R),method='SLSQP',constraints=cons)
@@ -318,7 +330,7 @@ x=np.reshape(x,(prediction_horizon,state_number) )
 # 数据可视化
 
 # 将两个数值画在一张图片上面 
-X = np.linspace(1, 10, 10, endpoint=True)
+X = np.linspace(1, prediction_horizon, prediction_horizon, endpoint=True)
 
 plt.plot(X,x,label="x")
 plt.plot(X,x_d,label="x_d")
